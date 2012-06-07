@@ -3,5 +3,6 @@
 
     <string name="hello">Hello World, FollowYouActivity!</string>
     <string name="app_name">FollowYou</string>
+    <string name="vista_satelite">Satelite</string>
 
 </resources>

@@ -15,5 +15,11 @@
 		android:layout_height="fill_parent"
 		android:apiKey="0jAuXZtRH6tvHQ5YptX5KfBrR4P_8olZCEwGa7A"
 		android:clickable="true" />
+    
+    <Button 
+        android:id="@+id/BtnSatelite"
+        android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:text="@string/vista_satelite" />
 
 </LinearLayout>
