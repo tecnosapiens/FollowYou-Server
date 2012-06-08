@@ -13,7 +13,7 @@
 		android:id="@+id/mapa"
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
-		android:apiKey="0jAuXZtRH6tvHQ5YptX5KfBrR4P_8olZCEwGa7A"
+		android:apiKey="0jAuXZtRH6ttZDtK2BqZ27LuXvdUiYbQrBObm4A" 
 		android:clickable="true" />
     
     <Button 
@@ -23,3 +23,6 @@
 		android:text="@string/vista_satelite" />
 
 </LinearLayout>
+
+<!-- 		android:apiKey="0jAuXZtRH6tvHQ5YptX5KfBrR4P_8olZCEwGa7A"   clave compu inidetam -->
+<!-- android:apikey ="0jAuXZtRH6ttZDtK2BqZ27LuXvdUiYbQrBObm4A"  clave compu home -->

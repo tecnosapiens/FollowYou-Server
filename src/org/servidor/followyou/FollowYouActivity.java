@@ -35,6 +35,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 
 import android.widget.Toast;
+import android.util.Log;
 
 
 public class FollowYouActivity extends MapActivity
@@ -64,6 +65,7 @@ public class FollowYouActivity extends MapActivity
 	}//Fin clase Overlay	
 	
 	private MapView mapa = null;
+	private BroadcastReceiver mReceiver;
 	
 	
 	
@@ -81,12 +83,10 @@ public class FollowYouActivity extends MapActivity
         //Show map control zoom over the map
         mapa.setBuiltInZoomControls(true);
         
-//        Bundle extras = this.getIntent().getExtras();
-//        String mensaje = extras.getString("mensaje_recibido");
-//        Toast.makeText(getApplicationContext(), mensaje, Toast.LENGTH_SHORT).show();
         
-        //procesarMensajeFollowMe(extras.getString("mensaje_recibido"));
-        //Toast.makeText(getApplicationContext(), extras.getString("mesaje_recibido"), Toast.LENGTH_SHORT).show();
+        //punto inicial en el mapa
+        setPointoverMap(19.1945, -96.135607);
+        
 
         
     }
@@ -98,12 +98,21 @@ public class FollowYouActivity extends MapActivity
     
     }
     
+    
+    
     protected void updateLocation(Location location){
 		//mapa = (MapView) findViewById(R.id.mapview);
         MapController mapController = mapa.getController();
         GeoPoint point = new GeoPoint((int) (location.getLatitude() * 1E6), (int) (location.getLongitude() * 1E6));
         mapController.animateTo(point);        
-        mapController.setZoom(15);
+        mapController.setZoom(10);
+        
+        int zoomActual = mapa.getZoomLevel();
+        
+        for(int i=zoomActual; i<10; i++)
+        {
+        	mapController.zoomIn();
+        }
         
         Geocoder geoCoder = new Geocoder(this, Locale.getDefault());
 
@@ -136,19 +145,63 @@ public class FollowYouActivity extends MapActivity
     	
     	String[] mensajeParseado = mensaje.split(",");
     	
-    	Location puntoGeo = new Location("gps");
-        double latitud =  Double.parseDouble(mensajeParseado[2]);
-        double longitud = Double.parseDouble(mensajeParseado[3]);
+    	
+        double latitud =  Double.parseDouble(mensajeParseado[3]);
+        double longitud = Double.parseDouble(mensajeParseado[4]);
+        Log.i("FollowYou", mensajeParseado[3] + " - " + mensajeParseado[4] );
         
        
-        puntoGeo.setLatitude(latitud);
-        puntoGeo.setLongitude(longitud);
-        //updateLocation(puntoGeo);
-        
+        setPointoverMap(latitud, longitud);
        
         
         
     	
+    }
+    
+    private void setPointoverMap(double latitud, double longitud)
+    {
+    	Location puntoGeo = new Location("gps");
+    	
+    	puntoGeo.setLatitude(latitud);
+        puntoGeo.setLongitude(longitud);
+    
+        updateLocation(puntoGeo);
+        
+    }
+    
+    
+    
+    
+    
+    @Override
+    protected void onResume() {
+        // TODO Auto-generated method stub
+        super.onResume();
+ 
+        IntentFilter intentFilter = new IntentFilter("android.intent.action.MAIN");
+ 
+        mReceiver = new BroadcastReceiver() {
+ 
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                //extract our message from intent
+                String msg_for_me = intent.getStringExtra("mensaje_recibido");
+                procesarMensajeFollowMe(msg_for_me);
+                //log our message value
+                Log.i("FollowYou", msg_for_me);
+ 
+            }
+        };
+        //registering our receiver
+        this.registerReceiver(mReceiver, intentFilter);
+    }
+ 
+    @Override
+    protected void onPause() {
+        // TODO Auto-generated method stub
+        super.onPause();
+        //unregister our receiver
+        this.unregisterReceiver(this.mReceiver);
     }
    
 }//Fin de clase

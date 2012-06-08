@@ -38,14 +38,13 @@ public class SmsReceiver extends BroadcastReceiver
 	            //---display the new SMS message---
 	            Toast.makeText(context, str, Toast.LENGTH_SHORT).show();
 	                    
-	           	// ventana.procesarMensajeFollowMe(str);                  
-	           
-	           //FollowYouActivity.procesarMensajeFollowMe(str);
-	            //procesarMensajeFollowMe(str);
+	       
+	            // se crea un nuevo Intent con la informacion que vamos a transferir como broadcast
+	            // todo: aqui se debe discriminar los mensajes que deben ser procesados ya que se estan cachando todos los que entran
+	            Intent i = new Intent("android.intent.action.MAIN").putExtra("mensaje_recibido", str);
+	            context.sendBroadcast(i);
 	            
-	           Intent newintent = new Intent(context, FollowYouActivity.class);
-	           // newintent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-	           newintent.putExtra("mensaje_recibido", str);
+
 	                                 
 	           
 	        }                         
