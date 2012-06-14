@@ -27,7 +27,10 @@ import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Point;
+import android.graphics.Typeface;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -43,15 +46,22 @@ public class FollowYouActivity extends MapActivity
 	class MyOverlay extends Overlay 
 	{
     	GeoPoint point;
+    	String[] informacion;
     	
-    	public MyOverlay(GeoPoint point) {
+    	public MyOverlay(GeoPoint point, String[] info)
+    	{
     		super();
     		this.point = point;
+    		this.informacion = info;
     	}
     	
         @Override
         public boolean draw(Canvas canvas, MapView mapView, boolean shadow, long when) {
-            super.draw(canvas, mapView, shadow);                   
+            super.draw(canvas, mapView, shadow);   
+            
+          //Definimos el pincel de dibujo
+            Paint p = new Paint();
+            p.setColor(Color.RED);
  
             Point scrnPoint = new Point();
             mapView.getProjection().toPixels(this.point, scrnPoint);
@@ -60,6 +70,18 @@ public class FollowYouActivity extends MapActivity
             canvas.drawBitmap(marker,
             		scrnPoint.x - marker.getWidth() / 2,
             		scrnPoint.y - marker.getHeight() / 2, null);
+            
+         
+            
+            canvas.drawText(informacion[0], 
+            		(scrnPoint.x + marker.getWidth() / 2),
+            		(scrnPoint.y)-10, p);
+            canvas.drawText(informacion[1], 
+            		(scrnPoint.x + marker.getWidth() / 2),
+            		(scrnPoint.y), p);
+            canvas.drawText(informacion[2], 
+            		(scrnPoint.x + marker.getWidth() / 2),
+            		(scrnPoint.y) + 10, p);
             return true;
         }
 	}//Fin clase Overlay	
@@ -83,9 +105,13 @@ public class FollowYouActivity extends MapActivity
         //Show map control zoom over the map
         mapa.setBuiltInZoomControls(true);
         
-        
+        String[] informacion = new String[3];
+        informacion[0] = "ID";
+        informacion[1] = "Edad";
+        informacion[2] = "provider";
+        		
         //punto inicial en el mapa
-        setPointoverMap(19.1945, -96.135607);
+        setPointoverMap(19.1945, -96.135607, informacion);
         
 
         
@@ -100,7 +126,7 @@ public class FollowYouActivity extends MapActivity
     
     
     
-    protected void updateLocation(Location location){
+    protected void updateLocation(Location location, String[] informacionPos){
 		//mapa = (MapView) findViewById(R.id.mapview);
         MapController mapController = mapa.getController();
         GeoPoint point = new GeoPoint((int) (location.getLatitude() * 1E6), (int) (location.getLongitude() * 1E6));
@@ -135,7 +161,7 @@ public class FollowYouActivity extends MapActivity
 
         
         List<Overlay> mapOverlays = mapa.getOverlays();
-        MyOverlay marker = new MyOverlay(point);
+        MyOverlay marker = new MyOverlay(point, informacionPos);
         mapOverlays.add(marker);  
         mapa.invalidate();		
 	}
@@ -150,22 +176,26 @@ public class FollowYouActivity extends MapActivity
         double longitud = Double.parseDouble(mensajeParseado[4]);
         Log.i("FollowYou", mensajeParseado[3] + " - " + mensajeParseado[4] );
         
+        String[] informacion = new String[3];
+        informacion[0] = "ID";
+        informacion[1] = "Edad";
+        informacion[2] = "provider";
        
-        setPointoverMap(latitud, longitud);
+        setPointoverMap(latitud, longitud, informacion);
        
         
         
     	
     }
     
-    private void setPointoverMap(double latitud, double longitud)
+    private void setPointoverMap(double latitud, double longitud, String[] infoPos)
     {
     	Location puntoGeo = new Location("gps");
     	
     	puntoGeo.setLatitude(latitud);
         puntoGeo.setLongitude(longitud);
     
-        updateLocation(puntoGeo);
+        updateLocation(puntoGeo, infoPos);
         
     }
     
