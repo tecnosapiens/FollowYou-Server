@@ -3,6 +3,8 @@ package org.servidor.followyou;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 
@@ -10,17 +12,10 @@ import android.content.BroadcastReceiver;
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapView;
 import android.os.Bundle;
-import android.telephony.SmsMessage;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-
-
+import android.text.format.Time;
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapController;
 import com.google.android.maps.Overlay;
-import com.google.android.maps.Projection;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -30,13 +25,9 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
-import android.graphics.Typeface;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-
 import android.widget.Toast;
 import android.util.Log;
 
@@ -86,9 +77,26 @@ public class FollowYouActivity extends MapActivity
         }
 	}//Fin clase Overlay	
 	
+	
 	private MapView mapa = null;
 	private BroadcastReceiver mReceiver;
 	
+	double latitud; 
+    double longitud;
+    String[] informacion;
+	
+	
+	private TimerTask mTimerTask;	
+	private int timeCounter;
+	Timer t = new Timer();
+	
+	String segundos = "00";
+	String minutos = "00";
+	String hora = "00";
+	
+	int edadSegundos = 0;
+	int edadMinutos = 0;
+	int edadHora = 0;
 	
 	
     /** Called when the activity is first created. */
@@ -105,13 +113,18 @@ public class FollowYouActivity extends MapActivity
         //Show map control zoom over the map
         mapa.setBuiltInZoomControls(true);
         
-        String[] informacion = new String[3];
+        Time now = new Time();
+    	now.setToNow();
+        
+        informacion = new String[3];
         informacion[0] = "ID";
-        informacion[1] = "Edad";
+        informacion[1] = now.format2445();
         informacion[2] = "provider";
         		
         //punto inicial en el mapa
         setPointoverMap(19.1945, -96.135607, informacion);
+        
+        Log.i("FollowYou", "Inicio");
         
 
         
@@ -163,25 +176,39 @@ public class FollowYouActivity extends MapActivity
         List<Overlay> mapOverlays = mapa.getOverlays();
         MyOverlay marker = new MyOverlay(point, informacionPos);
         mapOverlays.add(marker);  
-        mapa.invalidate();		
+        mapa.invalidate();	
+        //mapa.postInvalidate();
 	}
     
     public void procesarMensajeFollowMe(String mensaje)
     {
+    	Log.i("FollowYou", "Llego el mensaje");
+    	
+    	if(mTimerTask!=null)
+    	{
+    	      Log.d("TIMER", "timer canceled");
+    	      mTimerTask.cancel();
+    	}
+    	      
+    	Time now = new Time();
+    	now.setToNow();
+    	
+    	
     	
     	String[] mensajeParseado = mensaje.split(",");
     	
     	
-        double latitud =  Double.parseDouble(mensajeParseado[3]);
-        double longitud = Double.parseDouble(mensajeParseado[4]);
+        latitud =  Double.parseDouble(mensajeParseado[3]);
+        longitud = Double.parseDouble(mensajeParseado[4]);
         Log.i("FollowYou", mensajeParseado[3] + " - " + mensajeParseado[4] );
         
-        String[] informacion = new String[3];
+        
         informacion[0] = "ID";
-        informacion[1] = "Edad";
+        informacion[1] = "00:00:00";//now.format2445();
         informacion[2] = "provider";
        
-        setPointoverMap(latitud, longitud, informacion);
+        //setPointoverMap(latitud, longitud, informacion);
+        doTimerTask();
        
         
         
@@ -232,6 +259,85 @@ public class FollowYouActivity extends MapActivity
         super.onPause();
         //unregister our receiver
         this.unregisterReceiver(this.mReceiver);
+    }
+    
+    
+    public void doTimerTask()//double latitud, double longitud, String[] info)
+    {
+    	timeCounter = 0;
+    	segundos = "00";
+    	minutos = "00";
+    	hora = "00";
+    	
+    	edadSegundos = 0;
+    	edadMinutos = 0;
+    	edadHora = 0;
+
+    	mTimerTask = new TimerTask() 
+    	{
+    		
+        	
+    		@Override
+			public void run()
+    		{
+    			
+    			timeCounter++;
+    			if(timeCounter == 60)
+    			{
+    				edadSegundos = 0;
+    				edadMinutos = edadMinutos + 1;
+    				
+    				if(edadMinutos == 60)
+    				{
+    					edadMinutos = 0;
+    					edadHora = edadHora + 1;
+    				}
+    			}
+    			else
+    			{
+    				edadSegundos = edadSegundos + 1;
+    			}
+    			
+    			if(edadHora < 10)
+    			{
+    				hora = "0" + Integer.toString(edadHora);
+    			}
+    			else
+    			{
+    				hora = Integer.toString(edadHora);
+    				
+    			}
+    			
+    			if(edadMinutos < 10)
+    			{
+    				minutos = "0" + Integer.toString(edadMinutos);
+    			}
+    			else
+    			{
+    				minutos = "0" + Integer.toString(edadMinutos);
+    				
+    			}
+    			
+    			if(edadSegundos < 10)
+    			{
+    				segundos = "0" + Integer.toString(edadSegundos);
+    			}
+    			else
+    			{
+    				segundos = Integer.toString(edadSegundos);
+    			}
+    			
+    			informacion[1] = hora + ":" + minutos + ":" + segundos; 
+     			
+    			setPointoverMap(latitud, longitud, informacion);
+    			Log.i("FollowYou", "TimerTask run: " + informacion[1]);
+    		}
+
+    	};
+
+    	// public void schedule (TimerTask task, long delay, long period) 
+    	t.schedule(mTimerTask, 1000);  // 
+
     }
    
 }//Fin de clase

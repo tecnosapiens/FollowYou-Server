@@ -3,8 +3,6 @@ package org.servidor.followyou;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentSender.SendIntentException;
-import android.location.Location;
 import android.os.Bundle;
 import android.telephony.SmsMessage;
 import android.widget.Toast;
