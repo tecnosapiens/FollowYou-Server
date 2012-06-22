@@ -276,6 +276,36 @@ public class FollowYouActivity extends MapActivity
         //mapa.invalidate();	
        
 	}
+    
+    protected void updateLabelListaMovilLocation()
+    {
+    	List<Overlay> mapOverlays = mapa.getOverlays();
+    	mapOverlays.clear();
+    	
+    	for( Iterator<String> it = listaMoviles.keySet().iterator(); it.hasNext();)
+        {
+            String s = (String)it.next();
+            String[] infoMovil = (String[])listaMoviles.get(s);
+            
+            latitud =  Double.parseDouble(infoMovil[4]);
+            longitud = Double.parseDouble(infoMovil[5]);
+            
+            GeoPoint pointLabel = new GeoPoint((int) (latitud * 1E6), (int) (longitud * 1E6));
+           
+            MyOverlay marker = new MyOverlay(pointLabel, infoMovil);
+            mapOverlays.add(marker);
+            
+            listaMoviles.put(infoMovil[0], infoMovil);
+            	
+            }
+    	
+    	mapa.postInvalidate();
+        //mapa.invalidate();	
+    	    	
+    	
+       
+	}
+    
     public void procesarMensajeFollowMe(String mensaje)
     {
     	
@@ -509,6 +539,7 @@ public class FollowYouActivity extends MapActivity
 	            	infoMovil[7] = "00:00:00"; 			// ---> Edad del movil desde su ultima actualizacion
 	            	infoMovil[8] = "0";					// 1 = movil actualizado --- 0 = movil sin actualizacion
 	            	updateLabelMovilLocation(infoMovil);
+	            	 Log.i("FollowYou", "Actualizo Etiqueta: " + infoMovil[0] + "-" + infoMovil[7]);
 	            	listaMoviles.put(infoMovil[0], infoMovil);
 	            }
 	            else
@@ -564,26 +595,22 @@ public class FollowYouActivity extends MapActivity
 	    				segundos = Integer.toString(edadSegundos);
 	    			}
 	    			infoMovil[7] = hora + ":" + minutos + ":" + segundos;  			// ---> Edad del movil desde su ultima actualizacion
-	            	updateLabelMovilLocation(infoMovil);
+	            	//updateLabelMovilLocation(infoMovil);
+	            	Log.i("FollowYou", "Actualizo Etiqueta: " + infoMovil[0] + "-" + infoMovil[7]);
 	            	listaMoviles.put(infoMovil[0], infoMovil);
 	            	
 	            }
 	            
-	        }
+	            
+	            
+	        }// fin del for de actualizacion de etiqueta de tiempo
 			
-			 
-    		
-        	
-			//setPointoverMap(latitud, longitud, informacion);
-			//Log.i("FollowYou", "TimerTask run: " + infoTemp[7]);
-        
-        	
-        	
-           mHandler.removeCallbacks(mMuestraMensaje);
-           mapa.postInvalidate();
+			 updateLabelListaMovilLocation();
+    		Log.i("FollowYou", "Se repite ejecucion del HILO");
+	        mHandler.removeCallbacks(mMuestraMensaje);
            mHandler.postDelayed(mMuestraMensaje, 1000);
-        }
-      };
+        } // fin run
+      };// fin runnable mMuestraMensaje
    
       public void threadActualizaEtiqueta() 
       {
