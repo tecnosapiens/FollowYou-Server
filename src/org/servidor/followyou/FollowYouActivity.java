@@ -6,13 +6,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Timer;
 import android.content.BroadcastReceiver;
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapView;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.format.Time;
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapController;
 import com.google.android.maps.Overlay;
@@ -284,8 +282,8 @@ public class FollowYouActivity extends MapActivity
     	
     	for( Iterator<String> it = listaMoviles.keySet().iterator(); it.hasNext();)
         {
-            String s = (String)it.next();
-            String[] infoMovil = (String[])listaMoviles.get(s);
+            String s = it.next();
+            String[] infoMovil = listaMoviles.get(s);
             
             latitud =  Double.parseDouble(infoMovil[4]);
             longitud = Double.parseDouble(infoMovil[5]);
@@ -523,8 +521,8 @@ public class FollowYouActivity extends MapActivity
 			 // Definir Iterator para extraer o imprimir valores
 	        for( Iterator<String> it = listaMoviles.keySet().iterator(); it.hasNext();)
 	        {
-	            String s = (String)it.next();
-	            String[] infoMovil = (String[])listaMoviles.get(s);
+	            String s = it.next();
+	            String[] infoMovil = listaMoviles.get(s);
 	            
 	            segundos = "00";
     	    	minutos = "00";
@@ -616,7 +614,8 @@ public class FollowYouActivity extends MapActivity
       {
     	  hilo = new Thread()
     	  {
-    		  public void run()
+    		  @Override
+			public void run()
     		  {
     			  try
     			  {
@@ -642,8 +641,8 @@ public class FollowYouActivity extends MapActivity
 			 // Definir Iterator para extraer o imprimir valores
 	        for( Iterator<String> it = listaMoviles.keySet().iterator(); it.hasNext();)
 	        {
-	            String s = (String)it.next();
-	            String[] infoMovil = (String[])listaMoviles.get(s);
+	            String s = it.next();
+	            String[] infoMovil = listaMoviles.get(s);
 	            
 	            segundos = "00";
     	    	minutos = "00";
