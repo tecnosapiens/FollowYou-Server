@@ -67,7 +67,7 @@ public class FollowYouActivity extends MapActivity
                 
              
                 // imprime el ID del Movil
-                canvas.drawText(informacion[0], 
+                canvas.drawText(informacion[9], 
                 		(scrnPoint.x + marker.getWidth() / 2),
                 		(scrnPoint.y)-10, p);
                 // imprime el Tipo de mensaje
@@ -82,6 +82,10 @@ public class FollowYouActivity extends MapActivity
                 canvas.drawText(informacion[7], 
                 		(scrnPoint.x + marker.getWidth() / 2),
                 		(scrnPoint.y) + 20, p);
+             // imprime El ALIAS del movil
+                canvas.drawText(informacion[0], 
+                		(scrnPoint.x + marker.getWidth() / 2),
+                		(scrnPoint.y) + 30, p);
             
  
             
@@ -135,7 +139,7 @@ public class FollowYouActivity extends MapActivity
         edadMovil = "00:00:00";
         
       
-    	infoTemp = new String[9];
+    	infoTemp = new String[10];
     	infoTemp[0] = "ID";
     	infoTemp[1] = "tipo";
     	infoTemp[2] = "hora";
@@ -145,6 +149,7 @@ public class FollowYouActivity extends MapActivity
     	infoTemp[6] = "provider";
     	infoTemp[7] = "edadMovil";
     	infoTemp[8] = "0";
+    	infoTemp[9] = "Alias1";
     	
     	puntoGeoMovil = new GeoPoint((int) (19.1945 * 1E6), (int) (-96.135607 * 1E6));
         		
@@ -185,14 +190,14 @@ public class FollowYouActivity extends MapActivity
         GeoPoint point = new GeoPoint((int) (latitud * 1E6), (int) (longitud * 1E6));
         puntoGeoMovil = point;
         mapController.animateTo(point);        
-        mapController.setZoom(10);
+       // mapController.setZoom(20);
         
         int zoomActual = mapa.getZoomLevel();
         
-        for(int i=zoomActual; i<10; i++)
-        {
-        	mapController.zoomIn();
-        }
+//        for(int i=zoomActual; i<20; i++)
+//        {
+//        	mapController.zoomIn();
+//        }
         
         Geocoder geoCoder = new Geocoder(this, Locale.getDefault());
 
@@ -304,6 +309,7 @@ public class FollowYouActivity extends MapActivity
        
 	}
     
+    
     public void procesarMensajeFollowMe(String mensaje)
     {
     	
@@ -311,9 +317,15 @@ public class FollowYouActivity extends MapActivity
     	
     	Log.i("FollowYou", "Llego el mensaje -- procesarMensajeFollowMe: " + mensajeParseado[0]);
     	
-    	if(listaMoviles.containsKey(mensajeParseado[0]))
+    	// la variable cabecera contiene el numero telefonico del cliente y el alias
+    	//String cabecera = "555555$ROCA";
+    	String[] cabeceraparseada = mensajeParseado[0].split("\\$");
+    	
+    	Log.i("FollowYou", "Cabecera mensaje: " + cabeceraparseada[0] + "-->" + cabeceraparseada[1]);
+    	
+    	if(listaMoviles.containsKey(cabeceraparseada[0]))
     	{
-    		String[] infoMovil = listaMoviles.get(mensajeParseado[0]);
+    		String[] infoMovil = listaMoviles.get(cabeceraparseada[0]);
     		
     		//infoMovil [0] = mensajeParseado[0];// ---->  $+id
         	infoMovil [1] = mensajeParseado[1];// ---->  tipo de mensaje SOS o OK
@@ -324,16 +336,17 @@ public class FollowYouActivity extends MapActivity
         	infoMovil [6] =  mensajeParseado[6];// ---->  Proveedor Servicio
         	infoMovil[7] = "00:00:00"; 			// ---> Edad del movil desde su ultima actualizacion
         	infoMovil[8] = "1";					// 1 = movil actualizado --- 0 = movil sin actualizacion 
+        	infoMovil[9] = cabeceraparseada[1];       // contiene el alias del cliente que proporciona su posicion: por default es Alias1
         	listaMoviles.put(infoMovil[0], infoMovil);
         	
         	Log.i("FollowYou", "ListaMoviles: " + Integer.toString(listaMoviles.size()));
         	
         	updateLocation(infoMovil);
     	}
-    	else
+    	else  // aqui se construye un nuevo elemento para el MapList en caso que no se encuentre
     	{
-    		String[] infoMovil = new String[9];
-        	infoMovil [0] = mensajeParseado[0];// ---->  $+id
+    		String[] infoMovil = new String[10];
+        	infoMovil [0] = cabeceraparseada[0];// ---->  $+id
         	infoMovil [1] = mensajeParseado[1];// ---->  tipo de mensaje SOS o OK
         	infoMovil [2] =  mensajeParseado[2];// ---->  Hora de creacion del mensaje
         	infoMovil [3] =  mensajeParseado[3];// ---->  Fecha de creacion del Mensaje
@@ -342,6 +355,8 @@ public class FollowYouActivity extends MapActivity
         	infoMovil [6] =  mensajeParseado[6];// ---->  Proveedor Servicio
         	infoMovil[7] = "00:00:00"; 			// ---> Edad del movil desde su ultima actualizacion
         	infoMovil[8] = "1";
+        	infoMovil[9] = cabeceraparseada[1];       // contiene el alias del cliente que proporciona su posicion: por default es Alias1
+        
         
     		listaMoviles.put(infoMovil[0], infoMovil);
     		Log.i("FollowYou", "ListaMoviles: " + Integer.toString(listaMoviles.size()));
@@ -350,64 +365,10 @@ public class FollowYouActivity extends MapActivity
     		
     	}
     	
-    	
-        
-        
-        /*  DATOS EN EL MENSAJE PARSEADO
-           mensajeParseado[0] ---->  $+id
-		   mensajeParseado[1] ---->  tipo de mensaje SOS o OK
-		   mensajeParseado[2] ---->  Hora de creacion del mensaje
-		   mensajeParseado[3] ---->  Fecha de creacion del Mensaje
-		   mensajeParseado[4] ---->  Latitud
-		   mensajeParseado[5] ---->  Longitud
-		   mensajeParseado[6] ---->  Proveedor Servicio
-		   
-		   
-	   */	   
-//        Log.i("FollowYou", " Mensaje Parseado: [" + mensajeParseado[0] + "] - [" 
-//        					   + mensajeParseado[1] + "] - [" 
-//        					   + mensajeParseado[2] + "] - ["
-//        					   + mensajeParseado[3] + "] - ["
-//        					   + mensajeParseado[4] + "] - ["
-//        					   + mensajeParseado[5] + "] - ["
-//        					   + mensajeParseado[6] + "]");
-//        
-//        Log.i("FollowYou", "Var infoTemp: [" + infoTemp[0] + "] - [" 
-//				   + infoTemp[1] + "] - [" 
-//				   + infoTemp[2] + "] - ["
-//				   + infoTemp[3] + "] - ["
-//				   + infoTemp[4] + "] - ["
-//				   + infoTemp[5] + "] - ["
-//				   + infoTemp[6] + "] - ["
-//				   + infoTemp[7] + "]");
-//        
-//        informacion[0] = "ID";
-//        informacion[1] = "00:00:00";//now.format2445();
-//        informacion[2] = "provider";
-        
-        //setPointoverMap(latitud, longitud, infoTemp);
-        
+    
         Log.i("FollowYou", "Antes de llamar al Hilo");
         
-//        if(hilo.isAlive())
-//	      {
-//	    	  hilo.interrupt();
-//	    	  Log.i("FolowYou", "se interrumpio el hilo");
-//	    	  
-//	    	  segundos = "00";
-//  	    	minutos = "00";
-//  	    	hora = "00";
-//  	    	
-//  	    	edadSegundos = 0;
-//  	    	edadMinutos = 0;
-//  	    	edadHora = 0;
-//  	      
-//  	    	
-//  	    	
-//  	    	//mHandler.postDelayed(mMuestraMensaje, 1000);
-//  	    	threadActualizaEtiqueta();
-//  	    	Log.i("FollowYou", "dentro del hilo task");
-//	      }
+
        
         if(mHandler != null)
     	{
@@ -433,14 +394,160 @@ public class FollowYouActivity extends MapActivity
     	      
     	}
         
-      
-       
-        
-        
-        
     	
     }
     
+    
+    
+    
+    
+    
+//    public void procesarMensajeFollowMe(String mensaje)
+//    {
+//    	
+//    	String[] mensajeParseado = mensaje.split(",");
+//    	
+//    	Log.i("FollowYou", "Llego el mensaje -- procesarMensajeFollowMe: " + mensajeParseado[0]);
+//    	
+//    	//String[] cabecera = mensajeParseado[0].split("$");
+//    	
+//    	if(listaMoviles.containsKey(mensajeParseado[0]))
+//    	{
+//    		String[] infoMovil = listaMoviles.get(mensajeParseado[0]);
+//    		
+//    		//infoMovil [0] = mensajeParseado[0];// ---->  $+id
+//        	infoMovil [1] = mensajeParseado[1];// ---->  tipo de mensaje SOS o OK
+//        	infoMovil [2] =  mensajeParseado[2];// ---->  Hora de creacion del mensaje
+//        	infoMovil [3] =  mensajeParseado[3];// ---->  Fecha de creacion del Mensaje
+//        	infoMovil [4] = mensajeParseado[4];// ---->  Latitud
+//        	infoMovil [5] = mensajeParseado[5];//---->  Longitud
+//        	infoMovil [6] =  mensajeParseado[6];// ---->  Proveedor Servicio
+//        	infoMovil[7] = "00:00:00"; 			// ---> Edad del movil desde su ultima actualizacion
+//        	infoMovil[8] = "1";					// 1 = movil actualizado --- 0 = movil sin actualizacion 
+//        	
+//        	
+//        	
+//        	
+//        	listaMoviles.put(infoMovil[0], infoMovil);
+//        	
+//        	Log.i("FollowYou", "ListaMoviles: " + Integer.toString(listaMoviles.size()));
+//        	
+//        	updateLocation(infoMovil);
+//    	}
+//    	else  // aqui se construye un nuevo elemento para el MapList en caso que no se encuentre
+//    	{
+//    		String[] infoMovil = new String[9];
+//        	infoMovil [0] = mensajeParseado[0];// ---->  $+id
+//        	infoMovil [1] = mensajeParseado[1];// ---->  tipo de mensaje SOS o OK
+//        	infoMovil [2] =  mensajeParseado[2];// ---->  Hora de creacion del mensaje
+//        	infoMovil [3] =  mensajeParseado[3];// ---->  Fecha de creacion del Mensaje
+//        	infoMovil [4] = mensajeParseado[4];// ---->  Latitud
+//        	infoMovil [5] = mensajeParseado[5];//---->  Longitud
+//        	infoMovil [6] =  mensajeParseado[6];// ---->  Proveedor Servicio
+//        	infoMovil[7] = "00:00:00"; 			// ---> Edad del movil desde su ultima actualizacion
+//        	infoMovil[8] = "1";
+//        	
+//        	
+//        
+//        
+//    		listaMoviles.put(infoMovil[0], infoMovil);
+//    		Log.i("FollowYou", "ListaMoviles: " + Integer.toString(listaMoviles.size()));
+//    		
+//    		updateLocation(infoMovil);
+//    		
+//    	}
+//    	
+//    	
+//        
+//        
+//        /*  DATOS EN EL MENSAJE PARSEADO
+//           mensajeParseado[0] ---->  $+id
+//		   mensajeParseado[1] ---->  tipo de mensaje SOS o OK
+//		   mensajeParseado[2] ---->  Hora de creacion del mensaje
+//		   mensajeParseado[3] ---->  Fecha de creacion del Mensaje
+//		   mensajeParseado[4] ---->  Latitud
+//		   mensajeParseado[5] ---->  Longitud
+//		   mensajeParseado[6] ---->  Proveedor Servicio
+//		   
+//		   
+//	   */	   
+////        Log.i("FollowYou", " Mensaje Parseado: [" + mensajeParseado[0] + "] - [" 
+////        					   + mensajeParseado[1] + "] - [" 
+////        					   + mensajeParseado[2] + "] - ["
+////        					   + mensajeParseado[3] + "] - ["
+////        					   + mensajeParseado[4] + "] - ["
+////        					   + mensajeParseado[5] + "] - ["
+////        					   + mensajeParseado[6] + "]");
+////        
+////        Log.i("FollowYou", "Var infoTemp: [" + infoTemp[0] + "] - [" 
+////				   + infoTemp[1] + "] - [" 
+////				   + infoTemp[2] + "] - ["
+////				   + infoTemp[3] + "] - ["
+////				   + infoTemp[4] + "] - ["
+////				   + infoTemp[5] + "] - ["
+////				   + infoTemp[6] + "] - ["
+////				   + infoTemp[7] + "]");
+////        
+////        informacion[0] = "ID";
+////        informacion[1] = "00:00:00";//now.format2445();
+////        informacion[2] = "provider";
+//        
+//        //setPointoverMap(latitud, longitud, infoTemp);
+//        
+//        Log.i("FollowYou", "Antes de llamar al Hilo");
+//        
+////        if(hilo.isAlive())
+////	      {
+////	    	  hilo.interrupt();
+////	    	  Log.i("FolowYou", "se interrumpio el hilo");
+////	    	  
+////	    	  segundos = "00";
+////  	    	minutos = "00";
+////  	    	hora = "00";
+////  	    	
+////  	    	edadSegundos = 0;
+////  	    	edadMinutos = 0;
+////  	    	edadHora = 0;
+////  	      
+////  	    	
+////  	    	
+////  	    	//mHandler.postDelayed(mMuestraMensaje, 1000);
+////  	    	threadActualizaEtiqueta();
+////  	    	Log.i("FollowYou", "dentro del hilo task");
+////	      }
+//       
+//        if(mHandler != null)
+//    	{
+//    	      Log.i("FolowYou", "timer canceled");
+//    	      mHandler.removeCallbacks(mMuestraMensaje);
+//    	    
+//    	      
+//    	      Log.i("FolowYou", "se borro la pila del handler");
+//    	          	      
+//    	    	segundos = "00";
+//    	    	minutos = "00";
+//    	    	hora = "00";
+//    	    	
+//    	    	edadSegundos = 0;
+//    	    	edadMinutos = 0;
+//    	    	edadHora = 0;
+//    	      
+//    	    	
+//    	    	
+//    	    	mHandler.postDelayed(mMuestraMensaje, 1000);
+//    	    	//threadActualizaEtiqueta();
+//    	    	Log.i("FollowYou", "dentro del hilo task");
+//    	      
+//    	}
+//        
+//      
+//       
+//        
+//        
+//        
+//    	
+//    }
+//    
     private void setPointoverMap(double latitud, double longitud, String[] infoPos)
     {
     	Location puntoGeo = new Location("gps"); // la etiqueta GPS es solo para que acepte la construccion el obj Location
@@ -610,118 +717,118 @@ public class FollowYouActivity extends MapActivity
         } // fin run
       };// fin runnable mMuestraMensaje
    
-      public void threadActualizaEtiqueta() 
-      {
-    	  hilo = new Thread()
-    	  {
-    		  @Override
-			public void run()
-    		  {
-    			  try
-    			  {
-    				  Thread.sleep(10000);
-    				  Log.i("Hilo", "hilo iniciado");
-    			  }
-    			  catch (InterruptedException e)
-    			  {
-					// TODO: handle exception
-    				  Log.i("Hilo", e.getMessage());
-    			  }
-    			  
-    			  mHandler.post(ejecutarAccionConteoEdadMovil);
-    		  }
-    	  };
-    	  hilo.start();
-      }
-      
-      final Runnable ejecutarAccionConteoEdadMovil = new Runnable() {
-		
-		public void run() {
-			// TODO Auto-generated method stub
-			 // Definir Iterator para extraer o imprimir valores
-	        for( Iterator<String> it = listaMoviles.keySet().iterator(); it.hasNext();)
-	        {
-	            String s = it.next();
-	            String[] infoMovil = listaMoviles.get(s);
-	            
-	            segundos = "00";
-    	    	minutos = "00";
-    	    	hora = "00";
-    	    	
-    	    	edadSegundos = 0;
-    	    	edadMinutos = 0;
-    	    	edadHora = 0;
-	            
-	            if(infoMovil[8] == "1")
-	            {
-	            	infoMovil[7] = "00:00:00"; 			// ---> Edad del movil desde su ultima actualizacion
-	            	infoMovil[8] = "0";					// 1 = movil actualizado --- 0 = movil sin actualizacion
-	            	updateLabelMovilLocation(infoMovil);
-	            	listaMoviles.put(infoMovil[0], infoMovil);
-	            }
-	            else
-	            {
-	            	
-	            	String[] horaParseada = infoMovil[7].split(":");
-	            	edadHora = Integer.parseInt(horaParseada[0]);
-	            	edadMinutos = Integer.parseInt(horaParseada[1]);
-	            	edadSegundos = Integer.parseInt(horaParseada[2]);
-	            	
-	            	if(edadSegundos == 59)
-	    			{
-	    				edadSegundos = 0;
-	    				edadMinutos = edadMinutos + 1;
-	    				
-	    				if(edadMinutos == 59)
-	    				{
-	    					edadMinutos = 0;
-	    					edadHora = edadHora + 1;
-	    				}
-	    			}
-	    			else
-	    			{
-	    				edadSegundos = edadSegundos + 1;
-	    			}
-	    			
-	    			if(edadHora < 10)
-	    			{
-	    				hora = "0" + Integer.toString(edadHora);
-	    			}
-	    			else
-	    			{
-	    				hora = Integer.toString(edadHora);
-	    				
-	    			}
-	    			
-	    			if(edadMinutos < 10)
-	    			{
-	    				minutos = "0" + Integer.toString(edadMinutos);
-	    			}
-	    			else
-	    			{
-	    				minutos = "0" + Integer.toString(edadMinutos);
-	    				
-	    			}
-	    			
-	    			if(edadSegundos < 10)
-	    			{
-	    				segundos = "0" + Integer.toString(edadSegundos);
-	    			}
-	    			else
-	    			{
-	    				segundos = Integer.toString(edadSegundos);
-	    			}
-	    			infoMovil[7] = hora + ":" + minutos + ":" + segundos;  			// ---> Edad del movil desde su ultima actualizacion
-	            	updateLabelMovilLocation(infoMovil);
-	            	listaMoviles.put(infoMovil[0], infoMovil);
-	            	
-	            }
-	            
-	        }
-			
-			
-		}
-	};
+//      public void threadActualizaEtiqueta() 
+//      {
+//    	  hilo = new Thread()
+//    	  {
+//    		  @Override
+//			public void run()
+//    		  {
+//    			  try
+//    			  {
+//    				  Thread.sleep(10000);
+//    				  Log.i("Hilo", "hilo iniciado");
+//    			  }
+//    			  catch (InterruptedException e)
+//    			  {
+//					// TODO: handle exception
+//    				  Log.i("Hilo", e.getMessage());
+//    			  }
+//    			  
+//    			  mHandler.post(ejecutarAccionConteoEdadMovil);
+//    		  }
+//    	  };
+//    	  hilo.start();
+//      }
+//      
+//      final Runnable ejecutarAccionConteoEdadMovil = new Runnable() {
+//		
+//		public void run() {
+//			// TODO Auto-generated method stub
+//			 // Definir Iterator para extraer o imprimir valores
+//	        for( Iterator<String> it = listaMoviles.keySet().iterator(); it.hasNext();)
+//	        {
+//	            String s = it.next();
+//	            String[] infoMovil = listaMoviles.get(s);
+//	            
+//	            segundos = "00";
+//    	    	minutos = "00";
+//    	    	hora = "00";
+//    	    	
+//    	    	edadSegundos = 0;
+//    	    	edadMinutos = 0;
+//    	    	edadHora = 0;
+//	            
+//	            if(infoMovil[8] == "1")
+//	            {
+//	            	infoMovil[7] = "00:00:00"; 			// ---> Edad del movil desde su ultima actualizacion
+//	            	infoMovil[8] = "0";					// 1 = movil actualizado --- 0 = movil sin actualizacion
+//	            	updateLabelMovilLocation(infoMovil);
+//	            	listaMoviles.put(infoMovil[0], infoMovil);
+//	            }
+//	            else
+//	            {
+//	            	
+//	            	String[] horaParseada = infoMovil[7].split(":");
+//	            	edadHora = Integer.parseInt(horaParseada[0]);
+//	            	edadMinutos = Integer.parseInt(horaParseada[1]);
+//	            	edadSegundos = Integer.parseInt(horaParseada[2]);
+//	            	
+//	            	if(edadSegundos == 59)
+//	    			{
+//	    				edadSegundos = 0;
+//	    				edadMinutos = edadMinutos + 1;
+//	    				
+//	    				if(edadMinutos == 59)
+//	    				{
+//	    					edadMinutos = 0;
+//	    					edadHora = edadHora + 1;
+//	    				}
+//	    			}
+//	    			else
+//	    			{
+//	    				edadSegundos = edadSegundos + 1;
+//	    			}
+//	    			
+//	    			if(edadHora < 10)
+//	    			{
+//	    				hora = "0" + Integer.toString(edadHora);
+//	    			}
+//	    			else
+//	    			{
+//	    				hora = Integer.toString(edadHora);
+//	    				
+//	    			}
+//	    			
+//	    			if(edadMinutos < 10)
+//	    			{
+//	    				minutos = "0" + Integer.toString(edadMinutos);
+//	    			}
+//	    			else
+//	    			{
+//	    				minutos = "0" + Integer.toString(edadMinutos);
+//	    				
+//	    			}
+//	    			
+//	    			if(edadSegundos < 10)
+//	    			{
+//	    				segundos = "0" + Integer.toString(edadSegundos);
+//	    			}
+//	    			else
+//	    			{
+//	    				segundos = Integer.toString(edadSegundos);
+//	    			}
+//	    			infoMovil[7] = hora + ":" + minutos + ":" + segundos;  			// ---> Edad del movil desde su ultima actualizacion
+//	            	updateLabelMovilLocation(infoMovil);
+//	            	listaMoviles.put(infoMovil[0], infoMovil);
+//	            	
+//	            }
+//	            
+//	        }
+//			
+//			
+//		}
+//	};
 
       
 }//Fin de clase

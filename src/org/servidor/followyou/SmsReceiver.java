@@ -28,13 +28,13 @@ public class SmsReceiver extends BroadcastReceiver
 	            msgs = new SmsMessage[pdus.length];            
 	            for (int i=0; i<msgs.length; i++){
 	                msgs[i] = SmsMessage.createFromPdu((byte[])pdus[i]);                
-	                str += "SMS from " + msgs[i].getOriginatingAddress();                     
-	                str += " :";
+	                str += msgs[i].getOriginatingAddress();                     
+	                //str += " :";
 	                str += msgs[i].getMessageBody().toString();
 	                str += "\n";        
 	            }
 	            //---display the new SMS message---
-	            Toast.makeText(context, str, Toast.LENGTH_SHORT).show();
+	           // Toast.makeText(context, str, Toast.LENGTH_SHORT).show();
 	                    
 	       
 	            // se crea un nuevo Intent con la informacion que vamos a transferir como broadcast
